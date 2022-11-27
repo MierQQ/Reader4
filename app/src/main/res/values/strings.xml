@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Reader</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_board">boards</string>
+    <string name="title_favorite_board">favorite boards</string>
+    <string name="title_favorite_treads">favorite treads</string>
+</resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/navigation_boards">
+    <fragment
+        android:id="@+id/navigation_favorite_boards"
+        android:name="nsu.mier.reader.ui.favorite_boards.FavoriteBoardsFragment"
+        tools:layout="@layout/fragment_favorite_boards" >
+        <action
+            android:id="@+id/action_navigation_favorite_boards_to_navigation_board"
+            app:destination="@id/navigation_board" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_favorite_treads"
+        android:name="nsu.mier.reader.ui.favorite_treads.FavoriteThreadsFragment"
+        tools:layout="@layout/fragment_favorite_threads" >
+        <action
+            android:id="@+id/action_navigation_favorite_treads_to_threadFragment"
+            app:destination="@id/navigation_thread" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_boards"
+        android:name="nsu.mier.reader.ui.boards.BoardsFragment"
+        tools:layout="@layout/fragment_boards">
+        <action
+            android:id="@+id/action_navigation_boards_to_navigation_board"
+            app:destination="@id/navigation_board" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_board"
+        android:name="nsu.mier.reader.ui.board.BoardFragment"
+        tools:layout="@layout/fragment_board" >
+        <action
+            android:id="@+id/action_navigation_board_to_threadFragment"
+            app:destination="@id/navigation_thread" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_thread"
+        android:name="nsu.mier.reader.ui.thread.ThreadFragment"
+        tools:layout="@layout/fragment_thread" />
+</navigation>
