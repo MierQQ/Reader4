@@ -15,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Safelist;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -84,7 +86,7 @@ public class ThreadRepository {
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Toast.makeText(context, "Failed to get thread", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
             }
 
             @Override
@@ -109,15 +111,16 @@ public class ThreadRepository {
                                 if (postsJSON.getJSONObject(j).has("com")){
                                     com = postsJSON.getJSONObject(j).getString("com");
                                     com = StringEscapeUtils.unescapeHtml4(com);
+                                    com = br2nl(com);
                                     com = Jsoup.parse(com).text();
                                 }
                                 Long tim = null;
                                 if (postsJSON.getJSONObject(j).has("tim")){
                                     tim = postsJSON.getJSONObject(j).getLong("tim");
                                 }
-                                Integer id = null;
+                                String id = null;
                                 if (postsJSON.getJSONObject(j).has("id")){
-                                    id = postsJSON.getJSONObject(j).getInt("id");
+                                    id = postsJSON.getJSONObject(j).getString("id");
                                 }
                                 String filename = null;
                                 if (postsJSON.getJSONObject(j).has("filename")){
@@ -141,7 +144,6 @@ public class ThreadRepository {
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Looper.prepare();
-                        Toast.makeText(context, "Failed to get threads", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -172,6 +174,17 @@ public class ThreadRepository {
         });
     }
 
+    public static String br2nl(String html) {
+        if(html==null)
+            return html;
+        Document document = Jsoup.parse(html);
+        document.outputSettings(new Document.OutputSettings().prettyPrint(false));//makes html() preserve linebreaks and spacing
+        document.select("br").append("\\n");
+        document.select("p").prepend("\\n\\n");
+        String s = document.html().replaceAll("\\\\n", "\n");
+        return Jsoup.clean(s, "", Safelist.none(), new Document.OutputSettings().prettyPrint(false));
+    }
+
     public void getThread(Callback<ThreadPosts> callback, Context context, String board, Integer no) {
         HttpUrl.Builder builder = Objects.requireNonNull(HttpUrl.parse(url)).newBuilder();
         builder.addPathSegment(board);
@@ -184,7 +197,7 @@ public class ThreadRepository {
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Toast.makeText(context, "Failed to get thread", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
             }
 
             @Override
@@ -206,15 +219,16 @@ public class ThreadRepository {
                             if (postsJSON.getJSONObject(j).has("com")){
                                 com = postsJSON.getJSONObject(j).getString("com");
                                 com = StringEscapeUtils.unescapeHtml4(com);
+                                com = br2nl(com);
                                 com = Jsoup.parse(com).text();
                             }
                             Long tim = null;
                             if (postsJSON.getJSONObject(j).has("tim")){
                                 tim = postsJSON.getJSONObject(j).getLong("tim");
                             }
-                            Integer id = null;
+                            String id = null;
                             if (postsJSON.getJSONObject(j).has("id")){
-                                id = postsJSON.getJSONObject(j).getInt("id");
+                                id = postsJSON.getJSONObject(j).getString("id");
                             }
                             String filename = null;
                             if (postsJSON.getJSONObject(j).has("filename")){
@@ -234,8 +248,6 @@ public class ThreadRepository {
                         callback.Invoke(new ThreadPosts(op, posts, board));
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Looper.prepare();
-                        Toast.makeText(context, "Failed to get thread", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

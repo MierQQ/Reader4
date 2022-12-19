@@ -9,11 +9,11 @@ public class Post implements Serializable {
     private String sub;
     private String com;
     private Long tim;
-    private Integer id;
+    private String id;
     private String filename;
     private String ext;
 
-    public Post(Integer no, String date, String sub, String com, Long tim, Integer id, String filename, String ext) {
+    public Post(Integer no, String date, String sub, String com, Long tim, String id, String filename, String ext) {
         this.no = no;
         this.date = date;
         this.sub = sub;
@@ -44,7 +44,7 @@ public class Post implements Serializable {
         return tim;
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
