@@ -1,5 +1,6 @@
 package nsu.mier.reader.ui.favorite_treads;
 
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import nsu.mier.reader.MainActivity;
 import nsu.mier.reader.databinding.FavoriteThreadCardBinding;
 import nsu.mier.reader.databinding.ThreadCardBinding;
 import nsu.mier.reader.entity.ThreadPosts;
+import nsu.mier.reader.repository.ThreadRepository;
 import nsu.mier.reader.ui.board.PostAdapter;
 import nsu.mier.reader.ui.board.ThreadsAdapter;
 
@@ -20,9 +23,11 @@ public class FavoriteThreadsAdapter extends RecyclerView.Adapter<FavoriteThreads
     private List<ThreadPosts> threadList;
     private ClickListener listener;
     private ClickListener deleteListener;
+    private Activity activity;
 
-    public FavoriteThreadsAdapter(List<ThreadPosts> threadList, ClickListener listener, ClickListener deleteListener) {
+    public FavoriteThreadsAdapter(List<ThreadPosts> threadList, ClickListener listener, ClickListener deleteListener, Activity activity) {
         setThreadList(threadList);
+        this.activity = activity;
         this.listener = listener;
         this.deleteListener = deleteListener;
     }
@@ -49,7 +54,20 @@ public class FavoriteThreadsAdapter extends RecyclerView.Adapter<FavoriteThreads
         ThreadPosts threadPosts = threadList.get(position);
         if (threadPosts.getOpPost().getTim() != null) {
             holder.binding.imageView2.setVisibility(View.VISIBLE);
-            //todo load image
+            holder.binding.imageView2.setOnClickListener(view -> {
+                MainActivity.binding.imageView.setVisibility(View.VISIBLE);
+                ThreadRepository.getInstance().getImage(bitmap -> {
+                    activity.runOnUiThread(() -> {
+                        MainActivity.binding.imageView.setImageBitmap(bitmap);
+                    });
+                }, threadPosts.getBoard(), threadPosts.getOpPost().getTim(), threadPosts.getOpPost().getExt());
+            });
+
+            ThreadRepository.getInstance().getImage(bitmap -> {
+                activity.runOnUiThread(() -> {
+                    holder.binding.imageView2.setImageBitmap(bitmap);
+                });
+            }, threadPosts.getBoard(), threadPosts.getOpPost().getTim(), threadPosts.getOpPost().getExt());
         }
         holder.binding.dateAndNo.setText("Date: " + threadPosts.getOpPost().getDate() +
                 " No." + threadPosts.getOpPost().getNo());

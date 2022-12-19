@@ -1,18 +1,19 @@
 package nsu.mier.reader.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Post {
+public class Post implements Serializable {
     private Integer no;
     private String date;
     private String sub;
     private String com;
-    private Integer tim;
+    private Long tim;
     private Integer id;
     private String filename;
     private String ext;
 
-    public Post(Integer no, String date, String sub, String com, Integer tim, Integer id, String filename, String ext) {
+    public Post(Integer no, String date, String sub, String com, Long tim, Integer id, String filename, String ext) {
         this.no = no;
         this.date = date;
         this.sub = sub;
@@ -39,7 +40,7 @@ public class Post {
         return com;
     }
 
-    public Integer getTim() {
+    public Long getTim() {
         return tim;
     }
 

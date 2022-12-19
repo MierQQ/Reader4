@@ -1,8 +1,9 @@
 package nsu.mier.reader.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Board {
+public class Board implements Serializable {
     private String board;
     private String title;
     private String info;

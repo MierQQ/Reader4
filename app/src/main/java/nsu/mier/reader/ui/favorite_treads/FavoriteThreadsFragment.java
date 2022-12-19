@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,7 +26,7 @@ public class FavoriteThreadsFragment extends Fragment {
 
     private FavoriteThreadsViewModel mViewModel;
     private FragmentFavoriteThreadsBinding binding;
-    private List<ThreadPosts> threadPostsList;
+    private LiveData<List<ThreadPosts>> threadPostsList;
     FavoriteThreadsAdapter adapter;
 
     public static FavoriteThreadsFragment newInstance() {
@@ -35,32 +36,28 @@ public class FavoriteThreadsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mViewModel = new ViewModelProvider(this).get(FavoriteThreadsViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(FavoriteThreadsViewModel.class);
 
         binding = FragmentFavoriteThreadsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        //Todo save threads
-        threadPostsList = new ArrayList<>();
-        List<Post> posts = new ArrayList<>();
-        for (int i = 0; i < 4; ++i) {
-            posts.add(new Post(10000 + i, "12/01/24", null, "hello " + i, i % 2 == 0? null:1, i, null, null));
-        }
-        for (int i = 0; i < 10; ++i) {
-            threadPostsList.add(new ThreadPosts(new Post(1000 + i, "22/10/22", "kok" + i, "kokwadssadsaddsaddkjaskldj", i % 2 == 0? null:1, i, null, null), posts));
-        }
+        threadPostsList = mViewModel.getThreads(requireActivity());
 
-        adapter = new FavoriteThreadsAdapter(threadPostsList, position -> {
+        adapter = new FavoriteThreadsAdapter(threadPostsList.getValue(), position -> {
             Bundle bundle = new Bundle();
-            bundle.putInt("no", threadPostsList.get(position).getOpPost().getNo());
+            bundle.putInt("position", position);
+            bundle.putString("board", threadPostsList.getValue().get(position).getBoard());
+            bundle.putInt("no", threadPostsList.getValue().get(position).getOpPost().getNo());
+            bundle.putBoolean("favorite", true);
             Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main).navigate(R.id.navigation_thread, bundle);
         }, position -> {
-            threadPostsList.remove(position);
-            adapter.setThreadList(threadPostsList);
-        });
+            mViewModel.deleteThreadPosts(position, requireActivity());
+        }, requireActivity());
         binding.recyclerView.setAdapter(adapter);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
-
+        threadPostsList.observe(getViewLifecycleOwner(), threadPosts -> {
+            adapter.setThreadList(threadPosts);
+        });
         return root;
     }
 

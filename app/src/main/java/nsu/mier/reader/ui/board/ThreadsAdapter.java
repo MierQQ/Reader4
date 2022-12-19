@@ -1,5 +1,6 @@
 package nsu.mier.reader.ui.board;
 
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,16 +11,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import nsu.mier.reader.MainActivity;
 import nsu.mier.reader.databinding.ThreadCardBinding;
 import nsu.mier.reader.entity.ThreadPosts;
+import nsu.mier.reader.repository.ThreadRepository;
 
 public class ThreadsAdapter extends RecyclerView.Adapter<ThreadsAdapter.ThreadHolder> {
     private List<ThreadPosts> threadList;
     private ClickListener listener;
+    private Activity activity;
 
-    public ThreadsAdapter(List<ThreadPosts> threadList, ClickListener listener) {
+    public ThreadsAdapter(List<ThreadPosts> threadList, ClickListener listener, Activity activity) {
         setThreadList(threadList);
         this.listener = listener;
+        this.activity = activity;
     }
 
     public void setThreadList(List<ThreadPosts> boardList) {
@@ -44,13 +49,26 @@ public class ThreadsAdapter extends RecyclerView.Adapter<ThreadsAdapter.ThreadHo
         ThreadPosts threadPosts = threadList.get(position);
         if (threadPosts.getOpPost().getTim() != null) {
             holder.binding.imageView2.setVisibility(View.VISIBLE);
-            //todo load image
+            holder.binding.imageView2.setOnClickListener(view -> {
+                MainActivity.binding.imageView.setVisibility(View.VISIBLE);
+                ThreadRepository.getInstance().getImage(bitmap -> {
+                    activity.runOnUiThread(() -> {
+                        MainActivity.binding.imageView.setImageBitmap(bitmap);
+                    });
+                }, threadPosts.getBoard(), threadPosts.getOpPost().getTim(), threadPosts.getOpPost().getExt());
+            });
+
+            ThreadRepository.getInstance().getImage(bitmap -> {
+                activity.runOnUiThread(() -> {
+                    holder.binding.imageView2.setImageBitmap(bitmap);
+                });
+            }, threadPosts.getBoard(), threadPosts.getOpPost().getTim(), threadPosts.getOpPost().getExt());
         }
         holder.binding.dateAndNo.setText("Date: " + threadPosts.getOpPost().getDate() +
                 " No." + threadPosts.getOpPost().getNo());
         holder.binding.ThreadTitle.setText(threadPosts.getOpPost().getSub());
         holder.binding.ThreadText.setText(threadPosts.getOpPost().getCom());
-        PostAdapter adapter = new PostAdapter(threadPosts.getPosts(), pos -> {} );
+        PostAdapter adapter = new PostAdapter(threadPosts.getPosts(), pos -> {}, threadPosts.getBoard(), activity);
         holder.binding.threadPosts.setAdapter(adapter);
         holder.binding.threadPosts.setLayoutManager(new LinearLayoutManager(holder.binding.getRoot().getContext()));
     }

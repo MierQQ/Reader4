@@ -41,6 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:layout_weight="0"
+                    android:adjustViewBounds="true"
                     android:maxWidth="100dp"
                     android:maxHeight="100dp"
                     android:visibility="gone"

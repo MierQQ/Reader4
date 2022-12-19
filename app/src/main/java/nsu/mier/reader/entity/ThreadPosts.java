@@ -1,15 +1,18 @@
 package nsu.mier.reader.entity;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-public class ThreadPosts {
+public class ThreadPosts implements Serializable {
     private Post opPost;
     private List<Post> posts;
+    private String board;
 
-    public ThreadPosts(Post opPost, List<Post> posts) {
+    public ThreadPosts(Post opPost, List<Post> posts, String board) {
         this.opPost = opPost;
         this.posts = posts;
+        this.board = board;
     }
 
     public Post getOpPost() {
@@ -18,6 +21,10 @@ public class ThreadPosts {
 
     public List<Post> getPosts() {
         return posts;
+    }
+
+    public String getBoard() {
+        return board;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package nsu.mier.reader.ui.favorite_boards;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
@@ -23,7 +24,7 @@ import nsu.mier.reader.entity.Board;
 import nsu.mier.reader.ui.boards.BoardAdapter;
 
 public class FavoriteBoardsFragment extends Fragment {
-    private List<Board> boards;
+    private LiveData<List<Board>> boards;
     private FragmentFavoriteBoardsBinding binding;
     private FavoriteBoardsViewModel mViewModel;
     private FavoriteBoardsAdapter adapter;
@@ -35,29 +36,28 @@ public class FavoriteBoardsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mViewModel = new ViewModelProvider(this).get(FavoriteBoardsViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(FavoriteBoardsViewModel.class);
 
         binding = FragmentFavoriteBoardsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        //todo get saved boards
-        boards = new LinkedList<Board>();
-        for (Integer i = 0; i < 10; ++i) {
-            boards.add(new Board(i.toString(), i.toString(), i.toString(), i, i));
-        }
+        boards = mViewModel.getBoards(requireActivity());
 
-        adapter = new FavoriteBoardsAdapter(boards, position -> {
+
+        adapter = new FavoriteBoardsAdapter(boards.getValue(), position -> {
             Bundle bundle = new Bundle();
-            bundle.putString("board", boards.get(position).getBoard());
-            bundle.putInt("pages", boards.get(position).getPages());
-            bundle.putInt("perPages", boards.get(position).getPerPage());
-            Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main).navigate(R.id.navigation_board, bundle);
+            bundle.putString("board", boards.getValue().get(position).getBoard());
+            bundle.putInt("pages", boards.getValue().get(position).getPages());
+            bundle.putInt("perPages", boards.getValue().get(position).getPerPage());
+            bundle.putBoolean("favorite", true);
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main).navigate(R.id.navigation_board, bundle);
         }, position -> {
-            boards.remove(position);
-            adapter.setBoardList(boards);
+            mViewModel.deleteBoard(position, requireActivity());
         });
         binding.boards.setAdapter(adapter);
         binding.boards.setLayoutManager(new LinearLayoutManager(container.getContext()));
+
+        boards.observe(getViewLifecycleOwner(), adapter::setBoardList);
 
         return root;
     }

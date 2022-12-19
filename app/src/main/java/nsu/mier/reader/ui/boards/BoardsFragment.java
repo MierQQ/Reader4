@@ -1,6 +1,7 @@
 package nsu.mier.reader.ui.boards;
 
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
@@ -26,7 +27,7 @@ import nsu.mier.reader.databinding.FragmentBoardsBinding;
 import nsu.mier.reader.entity.Board;
 
 public class BoardsFragment extends Fragment implements BoardAdapter.ClickListener {
-    private List<Board> boards;
+    private LiveData<List<Board>> boards;
     private FragmentBoardsBinding binding;
     private BoardsViewModel mViewModel;
 
@@ -37,20 +38,20 @@ public class BoardsFragment extends Fragment implements BoardAdapter.ClickListen
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mViewModel = new ViewModelProvider(this).get(BoardsViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(BoardsViewModel.class);
 
         binding = FragmentBoardsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        //todo load boards
-        boards = new LinkedList<Board>();
-        for (Integer i = 0; i < 10; ++i) {
-            boards.add(new Board(i.toString(), i.toString(), i.toString(), i, i));
-        }
+        boards = mViewModel.getBoards(requireActivity());
 
-        BoardAdapter adapter = new BoardAdapter(boards, this);
+        BoardAdapter adapter = new BoardAdapter(boards.getValue(), this);
         binding.boards.setAdapter(adapter);
         binding.boards.setLayoutManager(new LinearLayoutManager(container.getContext()));
+
+        boards.observe(getViewLifecycleOwner(), adapter::setBoardList);
+
+
         return root;
     }
 
@@ -63,9 +64,10 @@ public class BoardsFragment extends Fragment implements BoardAdapter.ClickListen
     @Override
     public void onItemClick(int position) {
         Bundle bundle = new Bundle();
-        bundle.putString("board", boards.get(position).getBoard());
-        bundle.putInt("pages", boards.get(position).getPages());
-        bundle.putInt("perPages", boards.get(position).getPerPage());
+        bundle.putString("board", boards.getValue().get(position).getBoard());
+        bundle.putInt("position", position);
+        bundle.putInt("pages", boards.getValue().get(position).getPages());
+        bundle.putInt("perPages", boards.getValue().get(position).getPerPage());
         Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main).navigate(R.id.navigation_board, bundle);
     }
 }
